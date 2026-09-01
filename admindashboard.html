@@ -1,0 +1,149 @@
+{% extends 'adminbase.html' %}
+
+{% block title %}Dashboard Overview{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-title {
+        margin-bottom: 1.5rem;
+        color: var(--dark-blue);
+        border-bottom: 2px solid var(--primary-blue);
+        padding-bottom: 0.5rem;
+    }
+
+    /* STATS CARDS GRID */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--white);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-left: 4px solid var(--primary-blue);
+    }
+
+    .stat-card.accent {
+        border-left-color: var(--accent-orange);
+    }
+
+    .stat-card h3 {
+        font-size: 0.9rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--dark-blue);
+    }
+
+    /* DATA TABLE CARD */
+    .card {
+        background: var(--white);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .card h2 {
+        font-size: 1.2rem;
+        color: var(--dark-blue);
+        margin-bottom: 1rem;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table th, table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    table th {
+        background-color: var(--primary-blue);
+        color: var(--white);
+    }
+
+    table tr:nth-child(even) {
+        background-color: #f1f5f9;
+    }
+
+    .badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Dashboard Overview</h1>
+
+<!-- TAKWIMU ZA ZIADA (STATS GRID) -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Jumla ya Past Papers</h3>
+        <div class="value">{{ total_papers|default(0) }}</div>
+    </div>
+    <div class="stat-card accent">
+        <h3>Jumla ya Masomo</h3>
+        <div class="value">{{ total_subjects|default(0) }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Jumla ya Kozi</h3>
+        <div class="value">{{ total_courses|default(0) }}</div>
+    </div>
+    <div class="stat-card accent">
+        <h3>Jumla ya Downloads</h3>
+        <div class="value">{{ total_downloads|default(0) }}</div>
+    </div>
+</div>
+
+<!-- TAFUTA NA ORODHA YA PAST PAPERS -->
+<div class="card">
+    <h2>Past Papers Zilizopakiwa Hivi Karibuni</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Somo</th>
+                <th>Mwaka</th>
+                <th>Aina</th>
+                <th>Size</th>
+                <th>Downloads</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for paper in papers %}
+            <tr>
+                <td>#{{ paper.id }}</td>
+                <td><strong>{{ paper.subject.code }}</strong> - {{ paper.subject.title }}</td>
+                <td>{{ paper.academic_year.year_label }}</td>
+                <td><span class="badge">{{ paper.exam_type.name }}</span></td>
+                <td>{{ paper.file_size_kb }} KB</td>
+                <td>{{ paper.downloads_count }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center;">Hakuna Past Paper iliyopakiwa bado kwenye mfumo.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
