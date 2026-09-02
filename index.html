@@ -1,144 +1,72 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Tafuta Past Papers - Core Papers{% endblock %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;">
-    
-    <!-- BREADCRUMB (Njia ya Kurudi Nyuma) -->
-    <div id="breadcrumb" style="background: #e9ecef; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.95rem; font-weight: 600; color: #0a4b9a;">
-        <span onclick="loadSubjects()" style="cursor: pointer; text-decoration: underline;">Masomo Yote</span>
-        <span id="bc-subject"></span>
-        <span id="bc-year"></span>
-    </div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            
+            <!-- Hero Section & Search Bar -->
+            <h1 class="fw-bold mb-3">Tafuta Past Papers Live</h1>
+            <p class="text-muted mb-4">Anza kuandika jina la somo au code ili kupata matokeo papo hapo.</p>
+            
+            <div class="input-group mb-3 shadow-sm">
+                <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Andika hapa (mf. CSE, Mathematics, Physics...)" autocomplete="off">
+            </div>
 
-    <!-- HATUA YA 1: LIST YA MASOMO -->
-    <div id="step-subjects">
-        <h2 style="color: #0a4b9a; margin-bottom: 1rem;">Chagua Somo</h2>
-        <div id="subjects-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem;">
-            <!-- Masomo yatajazwa hapa na JS -->
+            <!-- Sehemu ya Kuonyesha Matokeo Live (Yatajitegemea hapa chini) -->
+            <div id="searchResults" class="list-group text-start shadow-sm mt-3">
+                <!-- Matokeo ya search yatajipanga hapa automatically kupitia JavaScript -->
+            </div>
+
         </div>
     </div>
-
-    <!-- HATUA YA 2: LIST YA MIAKA YA SOMO HILO -->
-    <div id="step-years" style="display: none;">
-        <h2 style="color: #0a4b9a; margin-bottom: 1rem;">Chagua Mwaka wa Masomo</h2>
-        <div id="years-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
-            <!-- Miaka itajazwa hapa na JS -->
-        </div>
-    </div>
-
-    <!-- HATUA YA 3: LIST YA PAPERS ZILIZOPATIKANA -->
-    <div id="step-papers" style="display: none;">
-        <h2 style="color: #0a4b9a; margin-bottom: 1rem;">Mitihani Iliyopatikana</h2>
-        <div id="papers-list">
-            <!-- Papers zitajazwa hapa na JS -->
-        </div>
-    </div>
-
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-const BACKEND_URL = window.location.origin;
+    // Weka anwani ya server yako ya backend (kama ipo localhost au kwenye IP nyingine)
+    const BACKEND_URL = 'http://127.0.0.1:5000';
 
-let selectedSubject = null;
-let selectedYear = null;
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const query = this.value.trim();
+        const resultsContainer = document.getElementById('searchResults');
 
-document.addEventListener('DOMContentLoaded', loadSubjects);
+        // Kama kisanduku kiko wazi, safisha matokeo
+        if (query === '') {
+            resultsContainer.innerHTML = '';
+            return;
+        }
 
-// 1. CHUKUA NA UONYESHE MASOMO YOTE
-function loadSubjects() {
-    // Ficha hatua zingine
-    document.getElementById('step-subjects').style.display = 'block';
-    document.getElementById('step-years').style.display = 'none';
-    document.getElementById('step-papers').style.display = 'none';
+        // Tuma ombi kwenda kwenye Search API ya Backend moja kwa moja
+        fetch(`${BACKEND_URL}/api/search?q=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(data => {
+                resultsContainer.innerHTML = ''; // Safisha matokeo ya zamani
 
-    // Reset Breadcrumbs
-    document.getElementById('bc-subject').innerText = '';
-    document.getElementById('bc-year').innerText = '';
+                if (data.length === 0) {
+                    resultsContainer.innerHTML = `<div class="list-group-item text-muted py-3">Hakuna past paper iliyopatikana kwa jina hili.</div>`;
+                    return;
+                }
 
-    fetch(`${BACKEND_URL}/api/subjects`)
-        .then(res => res.json())
-        .then(data => {
-            const grid = document.getElementById('subjects-grid');
-            grid.innerHTML = '';
-
-            data.forEach(sub => {
-                grid.innerHTML += `
-                    <div onclick="selectSubject(${sub.id}, '${sub.code}', '${sub.title}')" 
-                         style="background: #fff; padding: 1.2rem; border-radius: 8px; border: 1px solid #dee2e6; cursor: pointer; border-left: 4px solid #0d6efd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong style="color: #0d6efd; display: block;">${sub.code}</strong>
-                        <span style="color: #333; font-size: 0.95rem;">${sub.title}</span>
-                    </div>
-                `;
-            });
-        });
-}
-
-// 2. MWANAFUNZI AKICHAGUA SOMO -> ONYESHA MIAKA
-function selectSubject(id, code, title) {
-    selectedSubject = { id, code, title };
-    
-    document.getElementById('step-subjects').style.display = 'none';
-    document.getElementById('step-years').style.display = 'block';
-
-    // Update Breadcrumb
-    document.getElementById('bc-subject').innerHTML = ` &gt; <span onclick="selectSubject(${id}, '${code}', '${title}')" style="cursor:pointer; text-decoration:underline;">${code}</span>`;
-    document.getElementById('bc-year').innerText = '';
-
-    fetch(`${BACKEND_URL}/api/academic-years`)
-        .then(res => res.json())
-        .then(data => {
-            const grid = document.getElementById('years-grid');
-            grid.innerHTML = '';
-
-            data.forEach(yr => {
-                grid.innerHTML += `
-                    <div onclick="selectYear(${yr.id}, '${yr.year_label}')" 
-                         style="background: #fff; padding: 1rem; text-align: center; border-radius: 6px; border: 1px solid #dee2e6; cursor: pointer; font-weight: bold; color: #0a4b9a;">
-                        📅 ${yr.year_label}
-                    </div>
-                `;
-            });
-        });
-}
-
-// 3. MWANAFUNZI AKICHAGUA MWAKA -> ONYESHA PAPERS ZILIZOPO
-function selectYear(id, label) {
-    selectedYear = { id, label };
-
-    document.getElementById('step-years').style.display = 'none';
-    document.getElementById('step-papers').style.display = 'block';
-
-    // Update Breadcrumb
-    document.getElementById('bc-year').innerText = ` > Mwaka ${label}`;
-
-    // Query backend kwa ushirikiano wa Subject ID + Year ID
-    fetch(`${BACKEND_URL}/api/papers?subject_id=${selectedSubject.id}&academic_year_id=${selectedYear.id}`)
-        .then(res => res.json())
-        .then(papers => {
-            const list = document.getElementById('papers-list');
-            list.innerHTML = '';
-
-            if (papers.length === 0) {
-                list.innerHTML = '<p style="text-align: center; color: #6c757d;">Hakuna past paper iliyopatikana kwa mwaka huu.</p>';
-                return;
-            }
-
-            papers.forEach(p => {
-                list.innerHTML += `
-                    <div style="background: #fff; padding: 1.2rem; border-radius: 8px; border: 1px solid #dee2e6; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h4 style="margin: 0; color: #0a4b9a;">${p.exam_type} - ${p.year}</h4>
-                            <p style="margin: 0.3rem 0 0 0; font-size: 0.85rem; color: #6c757d;">
-                                Size: ${p.file_size_kb} KB | Downloads: ${p.downloads}
-                            </p>
-                        </div>
-                        <a href="${p.download_url}" target="_blank" style="padding: 0.6rem 1.2rem; background: #fd7e14; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.9rem;">
-                            Fungua PDF
+                // Zungusha matokeo yote yaliyopatikana na uyachomeke kwenye UI
+                data.forEach(paper => {
+                    resultsContainer.innerHTML += `
+                        <a href="${BACKEND_URL}/static/uploads/papers/${paper.filename}" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                            <div>
+                                <h6 class="mb-1 fw-bold text-dark">📄 ${paper.filename}</h6>
+                                <small class="text-muted">Bonyeza kufungua au kupakua PDF</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill px-3 py-2">Download</span>
                         </a>
-                    </div>
-                `;
+                    `;
+                });
+            })
+            .catch(err => {
+                console.error('Kosa la mtandao wakati wa kutafuta:', err);
             });
-        });
-}
+    });
 </script>
 {% endblock %}

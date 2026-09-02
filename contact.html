@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Wasiliana Nasi - Core Papers{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="fw-bold mb-3 text-center">Wasiliana Nasi</h1>
+            <p class="text-muted text-center mb-4">Una swali, pendekezo, au unataka kutoa taarifa fulani? Jaza fomu hapa chini.</p>
+            
+            <div class="card shadow-sm p-4 border-0">
+                <form onsubmit="event.preventDefault(); alert('Ujumbe wako umepokelewa asante!'); this.reset();">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Jina Lako</label>
+                        <input type="text" class="form-control" id="name" placeholder="Andika jina lako kamili" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Barua Pepe (Email)</label>
+                        <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Ujumbe Wako</label>
+                        <textarea class="form-control" id="message" rows="4" placeholder="Andika ujumbe wako hapa..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">Tuma Ujumbe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
