@@ -1,33 +1,104 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tafuta Past Papers - Core Papers</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .hero-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .badge-feature {
+            background-color: #eef2ff;
+            color: #4f46e5;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
 
-{% block title %}Tafuta Past Papers - Core Papers{% endblock %}
-
-{% block content %}
 <div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
+        <div class="col-md-9 text-center">
             
-            <!-- Hero Section & Search Bar -->
-            <h1 class="fw-bold mb-3">Tafuta Past Papers Live</h1>
-            <p class="text-muted mb-4">Anza kuandika jina la somo au code ili kupata matokeo papo hapo.</p>
-            
-            <div class="input-group mb-3 shadow-sm">
-                <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Andika hapa (mf. CSE, Mathematics, Physics...)" autocomplete="off">
+            <!-- Hero & Info Section Ya Juu -->
+            <div class="hero-card mb-4">
+                <span class="badge-feature">
+                    <i class="fa-solid fa-graduation-cap me-1"></i> Core Papers Academic Portal
+                </span>
+                <h1 class="fw-bold text-dark mb-3">Maktaba Yako ya Mtandaoni ya Past Papers</h1>
+                <p class="text-secondary fs-5 mb-4" style="line-height: 1.6;">
+                    Karibu Core Papers! Mfumo huu umewekwa maalum kukusaidia kupata na kupakua mtandaoni Past Papers za masomo na kozi mbalimbali kwa haraka. 
+                    Tafuta somo au code ya kozi kupata mtihani unaohitaji kwa sekunde chache.
+                </p>
+                
+                <!-- Features Highlights -->
+                <div class="row text-start g-3 mb-2">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-bolt text-warning fs-4 me-3"></i>
+                            <div>
+                                <strong class="d-block text-dark">Matokeo ya Papo hapo</strong>
+                                <small class="text-muted">Inatafuta unavyoandika (Live Search)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-file-pdf text-danger fs-4 me-3"></i>
+                            <div>
+                                <strong class="d-block text-dark">Mafile ya PDF Safi</strong>
+                                <small class="text-muted">Kusoma au Kupakua moja kwa moja</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-lock-open text-success fs-4 me-3"></i>
+                            <div>
+                                <strong class="d-block text-dark">Bure Kabisa</strong>
+                                <small class="text-muted">Hakuna malipo au usajili tata</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Sehemu ya Kuonyesha Matokeo Live (Yatajitegemea hapa chini) -->
-            <div id="searchResults" class="list-group text-start shadow-sm mt-3">
-                <!-- Matokeo ya search yatajipanga hapa automatically kupitia JavaScript -->
+            <!-- Search Bar Section -->
+            <div class="card p-4 shadow-sm border-0">
+                <h4 class="fw-bold mb-3 text-start"><i class="fa-solid fa-magnifying-glass me-2"></i>Anza Kutafuta</h4>
+                <div class="input-group input-group-lg mb-2">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Andika hapa (mf. CSE, Mathematics, Civil, Physics...)" autocomplete="off">
+                </div>
+                <small class="text-muted text-start d-block">Matokeo yatajitokeza chini pindi tu unapoandika.</small>
+
+                <!-- Sehemu ya Kuonyesha Matokeo Live -->
+                <div id="searchResults" class="list-group text-start shadow-sm mt-3">
+                    <!-- Matokeo yataingizwa hapa na JS -->
+                </div>
             </div>
 
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- JavaScript Logic -->
 <script>
-    // Weka anwani ya server yako ya backend (kama ipo localhost au kwenye IP nyingine)
+    // Weka anwani ya server yako ya backend (PythonAnywhere au Localhost)
     const BACKEND_URL = 'http://127.0.0.1:5000';
 
     document.getElementById('searchInput').addEventListener('input', function() {
@@ -40,26 +111,29 @@
             return;
         }
 
-        // Tuma ombi kwenda kwenye Search API ya Backend moja kwa moja
+        // Tuma ombi kwenda kwenye Search API ya Backend
         fetch(`${BACKEND_URL}/api/search?q=${encodeURIComponent(query)}`)
             .then(res => res.json())
             .then(data => {
                 resultsContainer.innerHTML = ''; // Safisha matokeo ya zamani
 
-                if (data.length === 0) {
-                    resultsContainer.innerHTML = `<div class="list-group-item text-muted py-3">Hakuna past paper iliyopatikana kwa jina hili.</div>`;
+                if (!data || data.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <div class="list-group-item text-muted py-3 text-center">
+                            <i class="fa-regular fa-face-frown me-2"></i>Hakuna past paper iliyopatikana kwa jina hili.
+                        </div>`;
                     return;
                 }
 
-                // Zungusha matokeo yote yaliyopatikana na uyachomeke kwenye UI
+                // Zungusha matokeo yote na kuyachomeke kwenye UI
                 data.forEach(paper => {
                     resultsContainer.innerHTML += `
                         <a href="${BACKEND_URL}/static/uploads/papers/${paper.filename}" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
                             <div>
-                                <h6 class="mb-1 fw-bold text-dark">📄 ${paper.filename}</h6>
-                                <small class="text-muted">Bonyeza kufungua au kupakua PDF</small>
+                                <h6 class="mb-1 fw-bold text-dark"><i class="fa-solid fa-file-pdf text-danger me-2"></i>${paper.filename}</h6>
+                                <small class="text-muted">Bonyeza hapa kufungua au kupakua PDF</small>
                             </div>
-                            <span class="badge bg-primary rounded-pill px-3 py-2">Download</span>
+                            <span class="badge bg-primary rounded-pill px-3 py-2"><i class="fa-solid fa-download me-1"></i> Fungua</span>
                         </a>
                     `;
                 });
@@ -69,4 +143,6 @@
             });
     });
 </script>
-{% endblock %}
+
+</body>
+</html>
